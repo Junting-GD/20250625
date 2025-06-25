@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINE聊天紀錄閱讀工具</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: 85vh;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #00C851, #00B248);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        
+        .upload-area {
+            border: 2px dashed #00C851;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            margin: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            background-color: #f8f9fa;
+            border-color: #00B248;
+        }
+        
+        .upload-area.dragover {
+            background-color: #e8f5e8;
+            border-color: #00B248;
+        }
+        
+        .search-bar {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .chat-messages {
+            height: 60vh;
+            max-height: 450px;
+            overflow-y: auto;
+            padding: 15px 10px;
+            background: #fafafa;
+        }
+        
+        .message {
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message-info {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        
+        .message-bubble {
+            max-width: 75%;
+            padding: 8px 12px;
+            border-radius: 15px;
+            word-wrap: break-word;
+            position: relative;
+            font-size: 14px;
+            line-height: 1.3;
+        }
+        
+        .message.other .message-bubble {
+            background: white;
+            border: 1px solid #e0e0e0;
+            align-self: flex-start;
+        }
+        
+        .message.self .message-bubble {
+            background: #00C851;
+            color: white;
+            align-self: flex-end;
+        }
+        
+        .message.self .message-info {
+            text-align: right;
+        }
+        
+        .highlight {
+            background-color: #b3d9ff;
+            color: #0066cc;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .no-messages {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+        }
+        
+        .search-results-info {
+            padding: 8px 15px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            margin: 0 15px;
+            border-radius: 0 5px 5px 0;
+            font-size: 13px;
+        }
+        
+        .user-colors {
+            --user-1: #ff6b6b;
+            --user-2: #4ecdc4;
+            --user-3: #45b7d1;
+            --user-4: #96ceb4;
+            --user-5: #feca57;
+            --user-6: #ff9ff3;
+            --user-7: #54a0ff;
+            --user-8: #5f27cd;
+        }
+        
+        .username {
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+
+        /* 移動端優化 */
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 10px !important;
+            }
+            
+            .chat-container {
+                min-height: 90vh;
+                border-radius: 10px;
+            }
+            
+            .chat-messages {
+                height: 55vh;
+                padding: 10px 8px;
+            }
+            
+            .search-bar {
+                padding: 10px;
+            }
+            
+            .message-bubble {
+                max-width: 85%;
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+            
+            .upload-area {
+                padding: 25px 15px;
+                margin: 15px;
+            }
+            
+            .upload-area h4 {
+                font-size: 1.1rem;
+            }
+        }
+        
+        /* 日期分隔符優化 */
+        .text-center .badge {
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+        
+        /* 日期輸入框優化 */
+        #dateInput {
+            position: relative;
+        }
+        
+        #dateInput::-webkit-datetime-edit-text {
+            color: transparent;
+        }
+        
+        #dateInput::-webkit-datetime-edit-month-field,
+        #dateInput::-webkit-datetime-edit-day-field,
+        #dateInput::-webkit-datetime-edit-year-field {
+            color: transparent;
+        }
+        
+        #dateInput::-webkit-inner-spin-button,
+        #dateInput::-webkit-calendar-picker-indicator {
+            opacity: 0;
+            position: absolute;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        #dateInput::before {
+            content: attr(placeholder);
+            color: #6c757d;
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 14px;
+        }
+        
+        #dateInput:focus::before,
+        #dateInput:valid::before {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-2">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2><i class="fab fa-line"></i> LINE聊天紀錄閱讀工具</h2>
+            </div>
+            
+            <div id="uploadSection">
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-success mb-3"></i>
+                    <h4>點擊或拖拽上傳聊天紀錄檔案</h4>
+                    <p class="text-muted">支援 .txt 格式的LINE聊天紀錄檔案</p>
+                    <input type="file" id="fileInput" accept=".txt" />
+                </div>
+            </div>
+            
+            <div id="chatSection" style="display: none;">
+                <div class="search-bar">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <input type="text" id="searchInput" class="form-control" placeholder="搜尋發言者名稱或訊息內容...">
+                                <button class="btn btn-success" type="button" onclick="searchMessages()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="date" id="dateInput" class="form-control" title="選擇日期搜尋" placeholder="點擊我使用日期搜尋">
+                                <button class="btn btn-outline-success" type="button" onclick="triggerDatePicker()">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="clearDateSearch()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="searchResults"></div>
+                
+                <div class="chat-messages" id="messagesContainer">
+                    <div class="no-messages">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <p>載入聊天紀錄中...</p>
+                    </div>
+                </div>
+                
+                <div class="stats" id="statsContainer">
+                    載入中...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let chatData = [];
+        let filteredData = [];
+        let userColors = {};
+        let userColorIndex = 0;
+        
+        // 檔案上傳處理
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+        
+        // 拖拽上傳
+        const uploadArea = document.querySelector('.upload-area');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        // 搜尋功能
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchMessages();
+            }
+        });
+        
+        // 日期搜尋功能
+        document.getElementById('dateInput').addEventListener('change', searchByDate);
+        
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+        
+        async function handleFile(file) {
+            if (!file.name.endsWith('.txt')) {
+                alert('請選擇 .txt 格式的檔案');
+                return;
+            }
+            
+            try {
+                const content = await file.text();
+                parseChatData(content);
+                showChatSection();
+            } catch (error) {
+                alert('讀取檔案時發生錯誤：' + error.message);
+            }
+        }
+        
+        function parseChatData(content) {
+            const lines = content.split('\n');
+            chatData = [];
+            let currentDate = '';
+            
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+                
+                // 跳過標題和儲存日期行
+                if (line.includes('的聊天記錄') || line.includes('儲存日期：')) {
+                    continue;
+                }
+                
+                // 檢查是否為日期行 (例如: 2025/06/11（三）)
+                const dateMatch = line.match(/^(\d{4}\/\d{1,2}\/\d{1,2})(?:（[^）]+）)?$/);
+                if (dateMatch) {
+                    currentDate = dateMatch[1];
+                    continue;
+                }
+                
+                // 解析訊息行
+                // 格式1: 下午02:22	浚庭	訊息內容
+                // 格式2: 下午02:22		系統訊息 (沒有使用者名稱)
+                const messageMatch = line.match(/^(上午|下午)(\d{1,2}:\d{2})(?::\d{2})?\s*\t\s*([^\t]*)\t?(.*)$/);
+                
+                if (messageMatch && currentDate) {
+                    const [, period, time, username, message] = messageMatch;
+                    const fullTime = `${period}${time}`;
+                    
+                    // 判斷是否為系統訊息（沒有使用者名稱或包含特定關鍵字）
+                    const isSystem = !username.trim() || 
+                                   message.includes('已新增') || 
+                                   message.includes('已離開') || 
+                                   message.includes('已將') || 
+                                   message.includes('從群組中移除') || 
+                                   message.includes('新增至群組') ||
+                                   message.includes('變更群組名稱');
+                    
+                    let finalUsername = username.trim();
+                    let finalMessage = message.trim();
+                    
+                    // 如果是系統訊息但有內容在username位置，可能是格式問題
+                    if (isSystem && !finalMessage && finalUsername) {
+                        finalMessage = finalUsername;
+                        finalUsername = '';
+                    }
+                    
+                    // 清理使用者名稱中的特殊字符
+                    if (finalUsername) {
+                        finalUsername = finalUsername.replace(/⁨/g, '').replace(/⁩/g, '');
+                    }
+                    
+                    chatData.push({
+                        date: currentDate,
+                        time: fullTime,
+                        username: finalUsername,
+                        message: finalMessage,
+                        isSystem: isSystem,
+                        timestamp: new Date(`${currentDate} ${time}`)
+                    });
+                    
+                    // 分配使用者顏色
+                    if (!isSystem && finalUsername && !userColors[finalUsername]) {
+                        userColors[finalUsername] = `var(--user-${(userColorIndex % 8) + 1})`;
+                        userColorIndex++;
+                    }
+                }
+            }
+            
+            filteredData = [...chatData];
+            console.log('解析結果:', chatData); // 除錯用
+        }
+        
+        function showChatSection() {
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('chatSection').style.display = 'block';
+            renderMessages();
+            updateStats();
+        }
+        
+        function renderMessages(data = filteredData) {
+            const container = document.getElementById('messagesContainer');
+            
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="no-messages">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <p>沒有找到相符的訊息</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            let currentDate = '';
+            
+            data.forEach((msg, index) => {
+                // 日期分隔
+                if (msg.date !== currentDate) {
+                    currentDate = msg.date;
+                    html += `
+                        <div class="text-center mb-2">
+                            <span class="badge bg-secondary">${msg.date}</span>
+                        </div>
+                    `;
+                }
+                
+                // 判斷是否為自己的訊息（這裡簡單以第一個非系統使用者為自己）
+                const isSelf = !msg.isSystem && msg.username === getMainUser();
+                const messageClass = msg.isSystem ? 'system' : (isSelf ? 'self' : 'other');
+                
+                html += `
+                    <div class="message ${messageClass}">
+                        <div class="message-info">
+                            ${!msg.isSystem && msg.username ? `<span class="username" style="color: ${userColors[msg.username] || '#666'}">${msg.username}</span>` : ''}
+                            <span class="time">${msg.time}</span>
+                        </div>
+                        <div class="message-bubble ${msg.isSystem ? 'bg-light text-muted border' : ''}">
+                            ${msg.message || '系統訊息'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function getMainUser() {
+            // 找出發言最多的非系統使用者作為主要使用者
+            const userCounts = {};
+            chatData.forEach(msg => {
+                if (!msg.isSystem) {
+                    userCounts[msg.username] = (userCounts[msg.username] || 0) + 1;
+                }
+            });
+            
+            return Object.keys(userCounts).reduce((a, b) => 
+                userCounts[a] > userCounts[b] ? a : b, '');
+        }
+        
+        function searchByDate() {
+            const dateInput = document.getElementById('dateInput').value;
+            
+            if (!dateInput) {
+                clearDateSearch();
+                return;
+            }
+            
+            // 將 YYYY-MM-DD 格式轉換為 YYYY/M/D 格式來比較
+            const searchDate = dateInput.replace(/-/g, '/').replace(/\/0+/g, '/');
+            
+            filteredData = chatData.filter(msg => {
+                const msgDate = msg.date.replace(/\/0+/g, '/');
+                return msgDate === searchDate;
+            });
+            
+            renderMessages();
+            showSearchResults(`日期: ${dateInput}`, filteredData.length);
+            
+            // 清空文字搜尋框
+            document.getElementById('searchInput').value = '';
+        }
+        
+        function clearDateSearch() {
+            document.getElementById('dateInput').value = '';
+            if (!document.getElementById('searchInput').value.trim()) {
+                clearSearch();
+            }
+        }
+        
+        function triggerDatePicker() {
+            const dateInput = document.getElementById('dateInput');
+            dateInput.focus();
+            dateInput.click();
+            
+            // 對於某些瀏覽器，嘗試觸發 showPicker 方法
+            if (dateInput.showPicker) {
+                try {
+                    dateInput.showPicker();
+                } catch (e) {
+                    // 如果 showPicker 不支援，忽略錯誤
+                    console.log('showPicker not supported');
+                }
+            }
+        }
+        
+        function showSearchResults(searchType, count) {
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = `
+                <div class="search-results-info">
+                    <i class="fas fa-search"></i>
+                    搜尋「${searchType}」找到 ${count} 則訊息
+                </div>
+            `;
+        }
+        
+        function searchMessages() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            
+            if (!query) {
+                clearSearch();
+                return;
+            }
+            
+            filteredData = chatData.filter(msg => 
+                (msg.username && msg.username.toLowerCase().includes(query)) || 
+                (msg.message && msg.message.toLowerCase().includes(query))
+            );
+            
+            // 高亮搜尋結果
+            filteredData = filteredData.map(msg => ({
+                ...msg,
+                message: msg.message ? highlightText(msg.message, query) : msg.message,
+                username: msg.username ? highlightText(msg.username, query) : msg.username
+            }));
+            
+            renderMessages();
+            showSearchResults(query, filteredData.length);
+        }
+        
+        function highlightText(text, query) {
+            if (!query) return text;
+            
+            const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+        
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        
+        function showSearchResults(query, count) {
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = `
+                <div class="search-results-info">
+                    <i class="fas fa-search"></i>
+                    搜尋「${query}」找到 ${count} 則訊息
+                </div>
+            `;
+        }
+        
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchResults').innerHTML = '';
+            filteredData = [...chatData];
+            renderMessages();
+        }
+        
+        function updateStats() {
+            const totalMessages = chatData.length;
+            const users = [...new Set(chatData.filter(msg => !msg.isSystem).map(msg => msg.username))];
+            const dateRange = chatData.length > 0 ? 
+                `${chatData[0].date} - ${chatData[chatData.length - 1].date}` : '';
+            
+            document.getElementById('statsContainer').innerHTML = `
+                總共 ${totalMessages} 則訊息 | ${users.length} 位參與者 | 時間範圍：${dateRange}
+            `;
+        }
+    </script>
+</body>
+</html>
