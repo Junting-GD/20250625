@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會議記錄 - 新系統上線規劃</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Microsoft+JhengHei&display=swap');
+        body {
+            font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #333;
+            line-height: 1.8;
+            padding-bottom: 50px;
+        }
+
+        /* 標題區樣式 */
+        .header-section {
+            background: linear-gradient(45deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            padding: 4rem 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-section p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 主要內容區容器 */
+        .content-container {
+            margin-top: -60px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 卡片式佈局 */
+        .card-custom {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            background-color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-custom:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+            border-left: 5px solid #3b82f6;
+            border-radius: 12px;
+            padding: 2.5rem;
+        }
+
+        /* 子標題樣式 */
+        h2.subtitle {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        h2.subtitle::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px;
+            height: 15px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        /* 灰色背景區塊 (subsection) */
+        .subsection {
+            background-color: #f1f5f9;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* 重點標示 */
+        .highlight-box {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border-left: 5px solid #3b82f6;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .important-note {
+            background-color: #fef9c3;
+            color: #854d0e;
+            border-left: 5px solid #f59e0b;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        /* 行動項目 */
+        .action-item {
+            background-color: #dcfce7;
+            color: #15803d;
+            border-left: 5px solid #22c55e;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .action-item i {
+            margin-right: 0.5rem;
+        }
+
+        /* 彩色徽章 */
+        .badge-custom {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: normal;
+        }
+
+        .badge-priority {
+            background-color: #ef4444;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* 時間軸樣式 */
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+            margin-left: 20px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #cbd5e1;
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+            padding-left: 25px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            background-color: #3b82f6;
+            border: 4px solid #fff;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        /* 表格樣式 */
+        .table-custom {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-custom thead {
+            background: linear-gradient(45deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+        }
+
+        .table-custom thead th {
+            border-top: none;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+        }
+
+        .table-custom tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* 進度條動畫 */
+        .progress-bar-animated {
+            animation: progress-animation 2s ease-in-out forwards;
+        }
+
+        @keyframes progress-animation {
+            0% { width: 0%; }
+            100% { width: var(--progress-width); }
+        }
+
+        /* 互動效果 */
+        .interactive-element {
+            transition: transform 0.2s ease;
+        }
+
+        .interactive-element:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .interactive-element.zoom:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-section">
+        <div class="container">
+            <h1 class="animate__animated animate__fadeInDown">會議記錄 <i class="bi bi-file-earmark-text"></i></h1>
+            <p class="animate__animated animate__fadeInUp">新系統上線規劃與流程調整</p>
+        </div>
+    </header>
+
+    <main class="container content-container">
+        <div class="card-custom interactive-element zoom">
+            <div class="card-body">
+                <h2 class="subtitle">會議概述</h2>
+                <div class="subsection">
+                    <p>本次會議主要討論了新系統上線的相關事宜，涵蓋了硬體設備、作業流程、供應商合作與時間規劃，並強調了未來營運模式的轉變。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-custom interactive-element zoom">
+            <div class="card-body">
+                <h2 class="subtitle">系統與流程優化</h2>
+                <ul>
+                    <li><strong>完整流程定義</strong>
+                        <div class="subsection">
+                            <p>系統上線後，以往各部門各自傳遞資訊的方式將不再適用，需要重新定義一套完整的流程。</p>
+                        </div>
+                    </li>
+                    <li><strong>收銀與客服流程調整</strong>
+                        <div class="subsection">
+                            <p>目前結帳過程中，顧客常因修改訂單或退換貨而中斷結帳並重新排隊。新系統目標是簡化流程，尤其在高峰時段。建議導入<span class="badge badge-custom">抽號碼機制</span>來管理客服需求，避免員工需隨時待命，以結帳為主要原則。可考慮設置專門的資訊櫃檯。</p>
+                        </div>
+                    </li>
+                    <li><strong>取貨流程優化</strong>
+                        <div class="subsection">
+                            <p>建議利用抽號碼機制，顧客結帳時給予號碼，後台憑號碼取貨，直接叫號取貨，優化顧客領取商品的流程。</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card-custom interactive-element zoom">
+            <div class="card-body">
+                <h2 class="subtitle">硬體設備討論</h2>
+                <ul>
+                    <li><strong>信用卡機</strong>：<i class="bi bi-credit-card-2-front"></i> 需確認是否有RS232接口並拍照給廠商確認。</li>
+                    <li><strong>出單機</strong>
+                        <div class="subsection">
+                            <p><strong>壽命考量</strong>：大陸製壽命約1-2年，Epson較耐用可達2-3年以上。</p>
+                            <p><strong>數量規劃</strong>：廠商表示一台iPad可登入不同帳號以使用不同出單機。門市預計<span class="badge badge-custom">兩台</span>、工作站<span class="badge badge-custom">一台</span>，備用機可在需要時增加。</p>
+                            <p><strong>WiFi網卡</strong>：需求需待現場確認後再討論。</p>
+                        </div>
+                    </li>
+                    <li><strong>標籤機</strong>：<i class="bi bi-upc-scan"></i> 硬體問題不大，可用於商品包裝貼附條碼，簡化出貨流程，特別是針對派遣人員。建議在<span class="badge badge-priority">後期階段</span>導入。</li>
+                    <li><strong>iPad</strong>：建議直接向Apple購買，可考慮翻新機。</li>
+                    <li><strong>倉儲Wi-Fi與設備環境</strong>
+                        <div class="subsection">
+                            <p><strong>Wi-Fi覆蓋</strong>：即使iPad有SIM卡版本，倉儲內部仍需加裝Wi-Fi以便監控等未來需求。</p>
+                            <p><strong>環境評估</strong>：需請廠商評估低溫潮濕環境下適合的機型並估價。</p>
+                            <p><strong>停車場Wi-Fi</strong>：若廠商現場勘查，可一併評估停車場區域加裝Wi-Fi及監視器的可能性。</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card-custom interactive-element zoom">
+            <div class="card-body">
+                <h2 class="subtitle">廠商與時程</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h5>廠商選擇與付款</h5>
+                        <p>已選定表現優異的廠商，簽約時需支付一半訂金，廠商今日將提供新報價單。</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h5>系統開發時程</h5>
+                        <p>系統開發預計 <span class="badge badge-custom">2-3週</span>，不含客製化最快 <span class="badge badge-custom">1週</span> 上線。</p>
+                        <p class="highlight-box"><i class="bi bi-star-fill"></i><strong>客製化優勢：</strong>此廠商客製化時間較短 (1-2週)，遠快於其他廠商。</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h5>上線目標</h5>
+                        <p>希望能在<span class="badge badge-priority">中秋節前</span>上線（約兩個月時間），時間充足。</p>
+                        <div class="progress mt-3">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%; --progress-width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">進度估計: 75%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-custom interactive-element zoom">
+            <div class="card-body">
+                <h2 class="subtitle">未來功能與風險評估</h2>
+                <ul>
+                    <li><strong>多元收款方式</strong>：需與零售部門討論，在不增加額外客製化費用的前提下，提供哪些儲值或點數等收款方式。</li>
+                    <li><strong>預購/訂閱制</strong>：討論了預購或儲值的概念，與未來訂閱制相結合。
+                        <p class="important-note"><i class="bi bi-exclamation-triangle-fill"></i> <strong>風險提示：</strong>此模式對於貨源不穩定的商品風險較高。建議先從貨源穩定的品項試行。</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card-custom interactive-element zoom">
+            <div class="card-body">
+                <h2 class="subtitle">人員分工與教育訓練</h2>
+                <ul>
+                    <li><strong>新思維導入</strong>：強調系統應作為輔助工具，人員需適應系統，以簡化教育訓練，讓派遣人員也能快速上手。</li>
+                    <li><strong>職責劃分</strong>
+                        <div class="subsection">
+                            <p><strong>倉儲人員 (師傅)</strong>：職責簡化為僅負責貨物搬運，不需與顧客互動或核對商品。</p>
+                            <p><strong>門市人員</strong>：負責顧客互動、最終的商品核對與點交。</p>
+                        </div>
+                    </li>
+                    <li><strong>SOP制定</strong>：需與零售和倉儲部門溝通，釐清職責並制定標準作業流程，確保尖峰時段流程順暢。</li>
+                    <li><strong>溝通與訓練</strong>
+                        <div class="subsection">
+                            <p class="action-item"><i class="bi bi-clipboard-check"></i> <strong>行動項目：</strong> 盡快與各部門溝通並達成共識，特別是倉儲人員的配合意願。</p>
+                            <p class="action-item"><i class="bi bi-calendar-check"></i> <strong>行動項目：</strong> 硬體設備與內部流程討論可同步進行。</p>
+                            <p class="action-item"><i class="bi bi-person-video"></i> <strong>行動項目：</strong> SOP確認後，再召集所有相關人員進行教育訓練。</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card-custom interactive-element zoom">
+            <div class="card-body">
+                <h2 class="subtitle">總結</h2>
+                <p>此次會議為新系統的上線奠定了基礎，明確了硬體需求和預期時程，並開始規劃如何調整內部作業流程與人員職責，以適應新的系統化管理模式。</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 平滑滾動
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // 點擊縮放效果
+        document.querySelectorAll('.zoom').forEach(element => {
+            element.addEventListener('mousedown', () => {
+                element.style.transform = 'scale(0.98)';
+            });
+            element.addEventListener('mouseup', () => {
+                element.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>
